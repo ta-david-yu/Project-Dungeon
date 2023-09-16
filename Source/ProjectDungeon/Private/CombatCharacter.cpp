@@ -1,13 +1,18 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "ProjectDungeon/Private/CombatCharacter.h"
+#include "ProjectDungeon/Public/CombatCharacter.h"
 
 #include "Components/InputComponent.h"
 #include "GameFramework/Controller.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h" 
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/InputComponent.h"
+#include "ProjectDungeon/LogUtility.h"
 
 
 // Sets default values
@@ -21,6 +26,15 @@ ACombatCharacter::ACombatCharacter()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("Camera Boom"));
+	CameraBoom->SetupAttachment(RootComponent);
+	CameraBoom->TargetArmLength = 400.0f;
+	CameraBoom->bUsePawnControlRotation = true;
+	
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	FollowCamera->bUsePawnControlRotation = false;
+	
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 }
 
@@ -45,8 +59,8 @@ void ACombatCharacter::BeginPlay()
 void ACombatCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
-	GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::White, FString::Printf(TEXT("Character World Location: %s"), *this->GetActorLocation().ToString()));
+
+	ULogUtility::AddOnScreenDebugMessageWithObjectContext(this, FString::Printf(TEXT("Character World Location: %s"), *this->GetActorLocation().ToString()));
 }
 
 // Called to bind functionality to input
@@ -61,6 +75,7 @@ void ACombatCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	}
 	
 	pInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ACombatCharacter::handleMoveInput);
+	pInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACombatCharacter::handleLookInput);
 }
 
 void ACombatCharacter::Move(FVector2D const &movementVector)
@@ -80,6 +95,13 @@ void ACombatCharacter::Move(FVector2D const &movementVector)
 	AddMovementInput(right, movementVector.X);
 }
 
+void ACombatCharacter::RotateCamera(FVector2D lookAxisVector)
+{
+	// add yaw and pitch input to controller
+	AddControllerYawInput(lookAxisVector.X);
+	AddControllerPitchInput(lookAxisVector.Y);
+}
+
 void ACombatCharacter::handleMoveInput(FInputActionValue const& Value)
 {
 	if (Controller == nullptr)
@@ -89,6 +111,12 @@ void ACombatCharacter::handleMoveInput(FInputActionValue const& Value)
 
 	auto vector = Value.Get<FVector2D>();
 	Move(vector);
+}
+
+void ACombatCharacter::handleLookInput(FInputActionValue const& value)
+{
+	FVector2D lookAxisVector = value.Get<FVector2D>();
+	RotateCamera(lookAxisVector);
 }
 
 

@@ -13,11 +13,22 @@ class PROJECTDUNGEON_API ACombatCharacter : public ACharacter
 	GENERATED_BODY()
 	
 private:
+	/** Camera boom positioning the camera behind the character */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class USpringArmComponent* CameraBoom;
+
+	/** Follow camera */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class UCameraComponent* FollowCamera;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputMappingContext* DefaultMappingContext;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* MoveAction;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* LookAction;
 	
 public:
 	// Sets default values for this character's properties
@@ -36,7 +47,9 @@ public:
 
 public:
 	void Move(FVector2D const &movementVector);
+	void RotateCamera(FVector2D lookAxisVector);
 
 private:
 	void handleMoveInput(FInputActionValue const &Value);
+	void handleLookInput(FInputActionValue const& value);
 };
