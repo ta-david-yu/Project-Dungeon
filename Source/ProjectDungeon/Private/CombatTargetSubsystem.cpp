@@ -17,10 +17,23 @@ bool UCombatTargetSubsystem::TryRegisterTarget(UCombatTargetComponent* pTargetTo
 	}
 	
 	m_RegisteredTargets.Add(pTargetToRegister);
+
+	FOnNewTargetRegisteredData eventData;
+	eventData.Target = pTargetToRegister;
+	
+	OnNewTargetRegistered.Broadcast(eventData);
+	
 	return true;
 }
 
 int32 UCombatTargetSubsystem::DeregisterTarget(UCombatTargetComponent* pTargetToDeRegister)
 {
-	return m_RegisteredTargets.Remove(pTargetToDeRegister);
+	int32 const removedCount = m_RegisteredTargets.Remove(pTargetToDeRegister);
+
+	FOnTargetDeregisteredData eventData;
+	eventData.Target = pTargetToDeRegister;
+	
+	OnTargetDeregistered.Broadcast(eventData);
+	
+	return removedCount;
 }

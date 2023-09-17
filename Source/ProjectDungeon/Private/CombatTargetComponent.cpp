@@ -47,3 +47,13 @@ void UCombatTargetComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	// ...
 }
 
+USceneComponent* UCombatTargetComponent::GetCrosshairAnchor() const
+{
+	if (m_pCrosshairAnchor)
+	{
+		return m_pCrosshairAnchor;
+	}
+
+	return GetOwner()->GetRootComponent();
+}
+

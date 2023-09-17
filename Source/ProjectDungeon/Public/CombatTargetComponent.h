@@ -12,6 +12,10 @@ class PROJECTDUNGEON_API UCombatTargetComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USceneComponent *m_pCrosshairAnchor = nullptr;
+	
 public:
 	// Sets default values for this component's properties
 	UCombatTargetComponent();
@@ -26,4 +30,8 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
+
+public:
+	UFUNCTION(BlueprintCallable)
+	USceneComponent *GetCrosshairAnchor() const;
 };
