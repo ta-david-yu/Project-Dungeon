@@ -39,7 +39,7 @@ class PROJECTDUNGEON_API UCombatTargetSubsystem : public UWorldSubsystem
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess="true"))
-	TArray<class UCombatTargetComponent*> m_RegisteredTargets;
+	TArray<class UCombatTargetComponent*> RegisteredTargets;
 
 public:
 	UPROPERTY(BlueprintAssignable)
@@ -50,10 +50,32 @@ public:
 	
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+
+	TArray<class UCombatTargetComponent*> const& GetRegisteredTargets() const;
 	
 	/// @return Whether or not the target has been successfully registered.
 	bool TryRegisterTarget(UCombatTargetComponent *pTargetToRegister);
 
 	/// @return the number of deregistered targets.
 	int32 DeregisterTarget(UCombatTargetComponent *pTargetToDeRegister);
+
+	template<class Func>
+	void ForEachTargetWithIndex(Func func)
+	{
+		for (int i = 0; i < RegisteredTargets.Num(); i++)
+		{
+			auto target = RegisteredTargets[i];
+			func(target, i);
+		}
+	}
+	
+	template<class Func>
+	void ForEachTargetWithIndex(Func func) const
+	{
+		for (int i = 0; i < RegisteredTargets.Num(); i++)
+		{
+			auto target = RegisteredTargets[i];
+			func(target, i);
+		}
+	}
 };

@@ -13,6 +13,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "ProjectDungeon/LogUtility.h"
+#include "ProjectDungeon/Public/CombatTargetControllerComponent.h"
 
 
 // Sets default values
@@ -31,7 +32,7 @@ ACombatCharacter::ACombatCharacter()
 	CameraBoom->TargetArmLength = 400.0f;
 	CameraBoom->bUsePawnControlRotation = true;
 	
-	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("Follow Camera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 	
@@ -48,11 +49,6 @@ void ACombatCharacter::BeginPlay()
 	{
 		return;
 	}
-
-	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pPlayerController->GetLocalPlayer()))
-	{
-		Subsystem->AddMappingContext(DefaultMappingContext, 0);
-	}
 }
 
 // Called every frame
@@ -67,15 +63,6 @@ void ACombatCharacter::Tick(float DeltaTime)
 void ACombatCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	UEnhancedInputComponent *pInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent);
-	if (pInputComponent == nullptr)
-	{
-		return;
-	}
-	
-	pInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ACombatCharacter::handleMoveInput);
-	pInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ACombatCharacter::handleLookInput);
 }
 
 void ACombatCharacter::Move(FVector2D const &movementVector)
@@ -100,23 +87,6 @@ void ACombatCharacter::RotateCamera(FVector2D lookAxisVector)
 	// add yaw and pitch input to controller
 	AddControllerYawInput(lookAxisVector.X);
 	AddControllerPitchInput(lookAxisVector.Y);
-}
-
-void ACombatCharacter::handleMoveInput(FInputActionValue const& Value)
-{
-	if (Controller == nullptr)
-	{
-		return;
-	}
-
-	auto vector = Value.Get<FVector2D>();
-	Move(vector);
-}
-
-void ACombatCharacter::handleLookInput(FInputActionValue const& value)
-{
-	FVector2D lookAxisVector = value.Get<FVector2D>();
-	RotateCamera(lookAxisVector);
 }
 
 

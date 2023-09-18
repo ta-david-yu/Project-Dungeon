@@ -9,14 +9,19 @@ void UCombatTargetSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	
 }
 
+TArray<UCombatTargetComponent*> const& UCombatTargetSubsystem::GetRegisteredTargets() const
+{
+	return RegisteredTargets;
+}
+
 bool UCombatTargetSubsystem::TryRegisterTarget(UCombatTargetComponent* pTargetToRegister)
 {
-	if (m_RegisteredTargets.Contains(pTargetToRegister))
+	if (RegisteredTargets.Contains(pTargetToRegister))
 	{
 		return false;
 	}
 	
-	m_RegisteredTargets.Add(pTargetToRegister);
+	RegisteredTargets.Add(pTargetToRegister);
 
 	FOnNewTargetRegisteredData eventData;
 	eventData.Target = pTargetToRegister;
@@ -28,7 +33,7 @@ bool UCombatTargetSubsystem::TryRegisterTarget(UCombatTargetComponent* pTargetTo
 
 int32 UCombatTargetSubsystem::DeregisterTarget(UCombatTargetComponent* pTargetToDeRegister)
 {
-	int32 const removedCount = m_RegisteredTargets.Remove(pTargetToDeRegister);
+	int32 const removedCount = RegisteredTargets.Remove(pTargetToDeRegister);
 
 	FOnTargetDeregisteredData eventData;
 	eventData.Target = pTargetToDeRegister;

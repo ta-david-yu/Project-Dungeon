@@ -13,7 +13,7 @@ class PROJECTDUNGEON_API UCombatTargetControllerComponent : public UActorCompone
 	GENERATED_BODY()
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Gameplay, meta=(AllowPrivateAccess="true"))
-	class UCombatTargetComponent *m_pCurrentTarget = nullptr;
+	class UCombatTargetComponent *CurrentTarget = nullptr;
 	
 public:
 	// Sets default values for this component's properties

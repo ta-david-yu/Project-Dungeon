@@ -21,15 +21,6 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputMappingContext* DefaultMappingContext;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* MoveAction;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* LookAction;
-	
 public:
 	// Sets default values for this character's properties
 	ACombatCharacter();
@@ -48,8 +39,4 @@ public:
 public:
 	void Move(FVector2D const &movementVector);
 	void RotateCamera(FVector2D lookAxisVector);
-
-private:
-	void handleMoveInput(FInputActionValue const &Value);
-	void handleLookInput(FInputActionValue const& value);
 };

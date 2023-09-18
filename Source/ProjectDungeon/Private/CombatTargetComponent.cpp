@@ -57,3 +57,8 @@ USceneComponent* UCombatTargetComponent::GetCrosshairAnchor() const
 	return GetOwner()->GetRootComponent();
 }
 
+FVector UCombatTargetComponent::GetCrosshairAnchorLocation() const
+{
+	return GetCrosshairAnchor()->GetComponentLocation();
+}
+

@@ -34,4 +34,7 @@ public:
 public:
 	UFUNCTION(BlueprintCallable)
 	USceneComponent *GetCrosshairAnchor() const;
+	
+	UFUNCTION(BlueprintCallable)
+	FVector GetCrosshairAnchorLocation() const;
 };
