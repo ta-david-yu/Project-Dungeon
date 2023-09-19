@@ -59,6 +59,9 @@ protected:
 public:
 	UFUNCTION(BlueprintCallable)
 	void AutoLockTargetClosestToViewCenter();
+
+	UFUNCTION(BlueprintCallable)
+	class UCombatTargetComponent *TryGetTargetClosestToViewCenter() const;
 	
 private:
 	void handleMoveInput(FInputActionValue const &Value);

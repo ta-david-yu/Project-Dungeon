@@ -49,6 +49,8 @@ void ACombatCharacter::BeginPlay()
 	{
 		return;
 	}
+
+	
 }
 
 // Called every frame
@@ -85,7 +87,7 @@ void ACombatCharacter::Move(FVector2D const &movementVector)
 void ACombatCharacter::RotateCamera(FVector2D lookAxisVector)
 {
 	// add yaw and pitch input to controller
-	AddControllerYawInput(lookAxisVector.X);
+	AddControllerYawInput(lookAxisVector.X);	
 	AddControllerPitchInput(lookAxisVector.Y);
 }
 

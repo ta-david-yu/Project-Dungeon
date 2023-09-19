@@ -66,32 +66,7 @@ void ACombatPlayerController::OnPossess(APawn* InPawn)
 
 void ACombatPlayerController::AutoLockTargetClosestToViewCenter()
 {
-	auto const cameraLocation = PlayerCameraManager->GetCameraLocation();
-	auto const cameraLookVector = PlayerCameraManager->GetCameraRotation().Vector();
-
-	UCombatTargetSubsystem const* combatTargetSubsystem = GetWorld()->GetSubsystem<UCombatTargetSubsystem>();
-	auto const allTargets = combatTargetSubsystem->GetRegisteredTargets();
-
-	UCombatTargetComponent *bestCandidateTarget = nullptr;
-	double smallestDotProduct = TNumericLimits<double>::Max();
-	for (int32 i = 0; i < allTargets.Num(); i++)
-	{
-		UCombatTargetComponent *target = allTargets[i];
-		bool const isOnScreen = target->GetCrosshairAnchor()->GetOwner()->WasRecentlyRendered();
-		if (!isOnScreen)
-		{
-			continue;
-		}
-		
-		auto const targetLocation = target->GetCrosshairAnchor()->GetComponentLocation();
-		FVector cameraToTarget = targetLocation - cameraLocation;
-		double dotProduct = cameraToTarget.Dot(cameraLookVector);
-		if (dotProduct < smallestDotProduct)
-		{
-			bestCandidateTarget = target;
-			smallestDotProduct = dotProduct;
-		}
-	}
+	UCombatTargetComponent *bestCandidateTarget = TryGetTargetClosestToViewCenter();
 
 	CurrentTarget = bestCandidateTarget;
 
@@ -106,6 +81,62 @@ void ACombatPlayerController::AutoLockTargetClosestToViewCenter()
 	{
 		ULogUtility::AddOnScreenDebugMessageWithObjectContext(this, FString::Printf(TEXT("No target")), params);
 	}
+}
+
+UCombatTargetComponent* ACombatPlayerController::TryGetTargetClosestToViewCenter() const
+{
+	auto const cameraLocation = PlayerCameraManager->GetCameraLocation();
+	auto const cameraLookVector = PlayerCameraManager->GetCameraRotation().Vector();
+
+	UCombatTargetSubsystem const* combatTargetSubsystem = GetWorld()->GetSubsystem<UCombatTargetSubsystem>();
+	auto const allTargets = combatTargetSubsystem->GetRegisteredTargets();
+
+	UCombatTargetComponent *bestCandidateTarget = nullptr;
+	double smallestAngleInRadian = TNumericLimits<double>::Max();
+	double smallestSqrDistance = TNumericLimits<double>::Max();
+	for (int32 i = 0; i < allTargets.Num(); i++)
+	{
+		UCombatTargetComponent *target = allTargets[i];
+		bool const isOnScreen = target->GetCrosshairAnchor()->GetOwner()->WasRecentlyRendered();
+		if (!isOnScreen)
+		{
+			continue;
+		}
+		
+		auto const targetLocation = target->GetCrosshairAnchor()->GetComponentLocation();
+		FVector const cameraToTarget = targetLocation - cameraLocation;
+		double const sqrDistance = cameraToTarget.SquaredLength();
+		
+		FVector nAxis;
+		float angleInRadian = 0.0f;
+		FQuat betweenQuat = FQuat::FindBetweenVectors(cameraToTarget, cameraLookVector);
+		betweenQuat.ToAxisAndAngle(nAxis, angleInRadian);
+		
+		bool isNewCandidate = false;
+		//double const angleTolerance = FMath::DegreesToRadians(1.0f);
+		if (FMath::IsNearlyEqual(angleInRadian, smallestAngleInRadian))
+		{
+			if (sqrDistance < smallestSqrDistance)
+			{
+				isNewCandidate = true;
+			}
+		}
+		else if (angleInRadian < smallestAngleInRadian)
+		{
+			isNewCandidate = true;
+		}
+
+		if (isNewCandidate)
+		{
+			bestCandidateTarget = target;
+			smallestAngleInRadian = angleInRadian;
+			smallestSqrDistance = sqrDistance;
+		}
+		
+		DrawDebugString(GetWorld(), targetLocation, FString::Printf(TEXT("Angle: %f, SqrDistance: %f"), angleInRadian, sqrDistance), nullptr, FColor::White, 0, false, 2);
+	}
+
+	return bestCandidateTarget;
 }
 
 void ACombatPlayerController::handleMoveInput(FInputActionValue const& Value)
