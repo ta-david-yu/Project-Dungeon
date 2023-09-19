@@ -86,8 +86,9 @@ void ACombatPlayerController::AutoLockTargetClosestToViewCenter()
 UCombatTargetComponent* ACombatPlayerController::TryGetTargetClosestToViewCenter() const
 {
 	auto const cameraLocation = PlayerCameraManager->GetCameraLocation();
-	auto const cameraLookVector = PlayerCameraManager->GetCameraRotation().Vector();
-
+	auto cameraLookVector = PlayerCameraManager->GetCameraRotation().Vector();
+	cameraLookVector.Z = 0;
+	
 	UCombatTargetSubsystem const* combatTargetSubsystem = GetWorld()->GetSubsystem<UCombatTargetSubsystem>();
 	auto const allTargets = combatTargetSubsystem->GetRegisteredTargets();
 
@@ -104,7 +105,8 @@ UCombatTargetComponent* ACombatPlayerController::TryGetTargetClosestToViewCenter
 		}
 		
 		auto const targetLocation = target->GetCrosshairAnchor()->GetComponentLocation();
-		FVector const cameraToTarget = targetLocation - cameraLocation;
+		FVector cameraToTarget = targetLocation - cameraLocation;
+		cameraToTarget.Z = 0;
 		double const sqrDistance = cameraToTarget.SquaredLength();
 		
 		FVector nAxis;
